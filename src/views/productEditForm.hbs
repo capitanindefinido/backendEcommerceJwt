@@ -1,0 +1,52 @@
+<div class="container">
+    <h2 class="text-center mt-2">Formualrio para editar un producto</h2>
+    <div class="d-flex justify-content-center align-items-center mt-5"  id="div-form">
+        
+    </div>
+</div>
+<script>
+    const getCidPid = () => {
+        const pid = window.location.pathname.split('/')[2]
+        const cid = '651c3fe98e5062e4fb9090ec'
+        return {pid, cid}
+    }
+    const createFrom = ( product ) => {
+        const divForm = document.querySelector('#div-form')
+        divForm.innerHTML = `
+            <form id="form-product" class="w-50" >
+            <h4 class="text-center">FORMULARIO MODIFICAR PRODUCTO</h4>
+            <label class='for-label mt-2' ><strong>Id del producto(no se puede modificar)</strong></label>
+            <input class="form-control bg-light" type="text"   name="id"          value=${product._id}  readonly >
+            <label class='for-label mt-2' ><strong>Nombre del producto</strong></label>
+            <input class="form-control" type="text"   name="title"       value=${product.title}        >
+            <label class='for-label mt-2' ><strong>Descripción del producto</strong></label>
+            <input class="form-control" type="text"   name="description" value=${product.description}   >
+            <label class='for-label mt-2' ><strong>Precio del producto</strong></label>
+            <input class="form-control" type="number" name="price"       value=${product.price}          >
+            <label class='for-label mt-2' ><strong>Stock del producto</strong></label>
+            <input class="form-control" type="number" name="stock"       value=${product.stock}        >
+            <label class='for-label mt-2' ><strong>Imágen del producto</strong></label>
+            <input class="form-control" type="text"   name="thumbnail"   value=${product.thumbnail}    >
+            <label class='for-label mt-2' ><strong>Código del producto(no se puede modificar)</strong></label>
+            <input class="form-control bg-light" type="text"   name="code"        value=${product.code } readonly >
+            <br>
+            <input class="form-control btn btn-outline-dark" type="submit">
+        </form>
+        `
+    }
+
+    const getProduct = async ( pid ) => {
+        const productDataJson = await fetch(`http://localhost:8080/api/products/${pid}`)
+        const productData = await productDataJson.json()
+        return productData.payload
+    }
+
+    const { pid } = getCidPid()
+    getProduct(pid)
+    .then(product => {
+        //console.log(product.title)
+        createFrom(product)
+    })
+    .catch(error => console.log(error))
+</script>
+

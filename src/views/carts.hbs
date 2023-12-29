@@ -1,0 +1,35 @@
+<div class="container text-center">
+    <h2>Carrito</h2>
+
+</div>
+
+
+{{#each products}}
+    <div class="mt-5">
+        <img src="{{this.product.thumbnail}}" style="width: 100px;">        
+        <label>Nombre: {{this.product.title}}</label>       
+        <label>- Cantidad: {{this.quantity}}</label>
+        <label>- Precio: {{this.product.price}}</label>
+        
+        <button class="btn btn-outline-danger" onclick="deleteProduct('{{this.product._id}}')"> X </button>
+        {{!-- <div>{{this.cid}}</div> --}}
+    </div>
+    <hr>
+{{/each}}
+    <button class="btn btn-outline-danger">Vaciar carrito</button>
+    <button class="btn btn-outline-dark">Terminar compra</button>
+    {{!-- {{cid}} --}}
+
+<script>
+    const deleteProduct = async (pid) => {
+        
+        const response = await fetch(`http://localhost:8080/api/carts/651c3fe98e5062e4fb9090ec/products/${pid}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        const data = await response.json()
+        window.location.reload()
+    }
+</script>

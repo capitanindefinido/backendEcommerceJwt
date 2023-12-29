@@ -1,0 +1,52 @@
+<h1 class="text-center">login</h1>
+<div class="container" >
+    <div class="d-flex justify-content-center align-item-center">
+        <form class="w-25" id="registerForm">
+            <label for="email">Email</label>
+            <input class="form-control" type="text" name="email" placeholder="ingresar el email">
+            <label for="password">Password</label>
+            <input class="form-control" type="text" name="password" placeholder="ingresar el password">
+            <br>
+            <button class="btn btn-outline-dark w-100">Enviar</button>
+        </form>        
+    </div>
+    {{!-- estrategia de github --}}
+    <div class="d-flex justify-content-center align-item-center">
+        <a class="w-25 pt-2" href="/api/sessions/github">
+            <button class="btn btn-dark w-100">Github</button>
+        </a>
+    </div>
+    <a href="/register">Registrarme</a>
+    <br>
+    <a href="/forgot-password">Forgot password</a>
+
+</div>
+
+<script>
+    const form = document.querySelector('#registerForm')
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        const formData = new FormData(form)
+        const data = Object.fromEntries(formData)
+        // console.log(data)
+
+        fetch('/api/sessions/login', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                //'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        })
+        .then(response => response.json())
+        .then((data) => {
+            if (data.status === 'success') {
+                //console.log(data)
+                //localStorage.setItem('authToken', data.token)
+                window.location.href = '/'
+            }
+        }).catch((error) => {
+            console.log(error.message)
+        })
+    })
+</script>

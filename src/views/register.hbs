@@ -1,0 +1,12 @@
+<div>
+    <h1>Register</h1>
+    <form action="/api/sessions/register" method="POST" >
+        <input type="text" name="first_name" placeholder="ingresar el nombre">
+        <input type="text" name="last_name" placeholder="ingresar el apellido">
+        <input type="text" name="email" placeholder="ingresar el email">
+        <input type="text" name="password" placeholder="ingresar el password">
+        {{!-- imagen multer --}}
+        <button class="btn btn-outline-dark">Enviar</button>
+    </form>
+    <a href="/login">Ya tienes una cuenta?</a>
+</div>

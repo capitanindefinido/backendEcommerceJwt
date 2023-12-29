@@ -1,0 +1,30 @@
+
+{{!-- mandar productos al servidor - api rest - socket emit--}}
+
+<h3 class="text-center">Real time product</h3>
+
+<div class="d-flex justify-content-center align-items-center">
+    <form id="form-product" class="w-50" >
+        <h4 class="text-center">Agregar producto</h4>
+        <input class="form-control p-2" type="text"   name="title"       placeholder="nombre del producto"           >
+        <input class="form-control p-2" type="text"   name="description" placeholder="descripción del producto"      >
+        <input class="form-control p-2" type="number" name="price"       placeholder="precio del producto"           >
+        <input class="form-control p-2" type="number" name="stock"       placeholder="stock del producto"            >
+        <input class="form-control p-2" type="text"   name="thumbnail"   placeholder="url de la imagen del producto" >
+        <input class="form-control p-2" type="text"   name="code"        placeholder="código del producto"           >
+        <br>
+        <input class="form-control p-2 btn btn-outline-dark" type="submit">
+    </form>
+
+</div>
+
+<h2 class="text-center mt-5">Prodcuts</h2>
+<div id="container-products" class="row w-100">
+   
+</div>
+
+ 
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+<script src="/js/realTimeProducts.js"></script>

@@ -1,0 +1,30 @@
+<h2 class="text-center">Prodcutos</h2>
+<div class="row w-100">
+    {{#each products}}
+        <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">{{this.title}}</h3>
+                </div>
+                <div class="card-body w-25">
+                    <img class="card-img-top" src={{this.thumbnail}} alt="imagen"/>
+                    <label>Nombre: {{this.title}}</label>    
+                    <label>Precio: {{this.price}}</label>    
+                    <label>Descripción: {{this.description}}</label>    
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-dark">Detalle</button>
+                </div>
+        </div>
+    {{/each}}
+</div>
+
+ <center>
+    {{#if hasPrevPage}}
+        <a href="/products?numPage={{prevPage}}"><button>Anterior</button></a>
+    {{/if}}
+    <label>{{page}}</label>
+    {{#if hasNextPage}}
+        <a href="/products?numPage={{nextPage}}"><button>Siguiente</button></a>
+    {{/if}}
+
+</center>
