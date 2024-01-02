@@ -6,6 +6,7 @@ const passport                       = require('passport')
 const { generateToken }              = require('../../utils/jsonwebtoken.js')
 const { sendMail }                   = require('../../utils/sendMail.js')
 const { configObject }               = require('../../config/config.js')
+const jwt                            = require('jsonwebtoken');
 
 const router = Router()
 const userService = new UserDaoMongo()
@@ -123,38 +124,53 @@ router.post('/forgot-password', async (req, res)=>{
         .send('<h2 class="text-center">El correo se a enviado, revise su casilla de correo</h2>')
 })
 
-router.post('/change-password', async (req, res)=>{
-    const { password, passwordConfirm } = req.body
-    const { cookieToken } = req.cookies
-    console.log(cookieToken)
-    console.log(password, passwordConfirm)
-    const { user, email, changeEmail } = await verifyToken(cookieToken)
-    if (!user || !email || !changeEmail) {
-        return res.status(404).send({
+router.post('/change-password', async (req, res) => {
+    try {
+        const { password, passwordConfirm } = req.body;
+        const { cookieToken } = req.cookies;
+
+        console.log(cookieToken);
+        console.log(password, passwordConfirm);
+
+        const { user, email, changeEmail } = await jwt.verify(cookieToken, 'secret');
+
+        if (!user || !email || !changeEmail) {
+            return res.status(404).send({
+                status: 'error',
+                error: 'No se encuentra el usuario'
+            });
+        }
+
+        if (password !== passwordConfirm) {
+            return res.status(404).send({
+                status: 'error',
+                error: 'Las contraseñas no coinciden'
+            });
+        }
+        
+        const userUpdate = await userService.update({ uid: user, userToUpdate: { password: createHash(password) } });
+
+        if (!userUpdate) {
+            return res.status(404).send({
+                status: 'error',
+                error: 'No se encuentra el usuario'
+            });
+        }
+
+        res
+            .clearCookie('cookieToken')
+            .send({
+                status: 'success',
+                message: 'La contraseña se cambió correctamente'
+            });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
             status: 'error',
-            error: 'no se encuentra el user'
-        })
+            error: 'Error al verificar el token'
+        });
     }
-    if (password !== repeat_password) {
-        return res.status(404).send({
-            status: 'error',
-            error: 'las contraseñas no coinciden'
-        })
-    }
-    const userUpdate = await userService.update(user, {password: createHash(password)})
-    if (!userUpdate) {
-        return res.status(404).send({
-            status: 'error',
-            error: 'no se encuentra el user'
-        })
-    }
-    res
-        // .clearCookie('cookieToken')
-        .send({
-        status: 'success',
-        message: 'la contraseña se cambio correctamente'
-    })
-})
+});
 
 
 // http://localhost:8080/api/sessions /logout

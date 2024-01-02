@@ -14,9 +14,14 @@ class UserDaoMongo {
     async crate(newUser){
         return this.model.create(newUser)
     }
-    async update({uid, userToUpdate}){
-        return this.model.findByIdAndUpdate({_id: uid}, userToUpdate)
+    async update({ uid, userToUpdate }) {
+        if (!uid) {
+            throw new Error('El identificador del usuario es obligatorio.');
+        }
+    
+        return this.model.findByIdAndUpdate(uid, userToUpdate, { new: true });
     }
+    
     async delete(uid){
         return this.model.findByIdAndDelete({_id: uid})
     }
