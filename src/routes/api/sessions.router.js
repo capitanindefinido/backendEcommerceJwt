@@ -72,7 +72,7 @@ router.post('/register', async (req,res) => {
             email,
             role: 'user'
         })
-
+        res.redirect('/login');
         res.cookie(
             'cookieToken',
             token,{
@@ -80,6 +80,7 @@ router.post('/register', async (req,res) => {
                 httpOnly: true
             }
         ).send({status: 'success', message: 'El ususario fue creado correctamente'})
+        
     } catch (error) {
         console.log(error)
     }
