@@ -72,7 +72,6 @@ router.post('/register', async (req,res) => {
             email,
             role: 'user'
         })
-        res.redirect('/login');
         res.cookie(
             'cookieToken',
             token,{
@@ -176,7 +175,20 @@ router.post('/change-password', async (req, res) => {
 
 // http://localhost:8080/api/sessions /logout
 router.post('/logout', (req,res) => {
+    req.session.destroy((error) =>{
+        if(error)
+        {
+            return res.json({ status: 'Logout Error', body: error})
+        }
+        res.redirect('../../login')
+    })    
     res.send('cerrada la session')
+})
+
+router.delete('/user/:uid', async (req,res) => {
+    const id = req.params.uid
+    const users = await userService.delete(id)
+    res.send({status: 'usuario eliminado con exito', payload: users})
 })
 
 module.exports = router

@@ -9,8 +9,9 @@ class CartDaoMongo {
         return await this.model.findOne(condition).lean()
     }
 
-    async create(){
+    async create(email){
         return await this.model.create({
+            userEmail: email,
             products:[],
         })
     }

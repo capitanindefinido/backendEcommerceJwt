@@ -53,7 +53,7 @@ class ProductController {
         try {
             const {pid} = req.params
             const newProduct = req.body
-            const result = await productService.updateProduct({pid, newProduct})
+            const result = await productService.updateProduct(pid, newProduct)
             res.send({
                 status: 'success',
                 payload: result

@@ -18,6 +18,16 @@ router.get('/:cid', async (req, res) => {
     })
 })
 
+//  api/carts - PUT - /:cid
+router.post('/', async (req, res) => {
+    const email = req.body.userEmail
+    const cart = await serviceCarts.create(email)
+    res.send({
+        status: 'success',
+        payload: cart
+    })
+})
+
 
 
 // /api/carts - PUT - /:cid/products/:pid
@@ -28,7 +38,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
    
     const result = await serviceCarts.addItemToCart({cid, pid, quantity})
     // console.log(result)
-    res.send({status: 'success', payload: 'result'})
+    res.send({status: 'success', payload: result})
 })
 // /api/carts - delete - /:cid/products/pid
 router.delete('/:cid/products/:pid', async (req, res) => {
