@@ -1,0 +1,55 @@
+  
+@media screen and (max-width: 640px) {
+  .cotizacion {
+    width: 100%;
+  }
+  .containerCotizacion{
+    flex-direction: column;
+    width: 100%;
+  }
+  .slider {
+    width: 250px;
+  }
+  .slider::before, .slider::after {
+    background: linear-gradient(to right, white 0%, rgba(255, 255, 255, 0) 0%);
+  }
+  .info {
+    width: 80%;
+  }
+  .form{
+    width: 100%;
+    margin: 0%;
+    align-items: normal;
+  }
+  .emailform {
+    padding: 0%;
+    margin-bottom: 0%;
+    border-radius: 0%;
+  }
+  .titulo-header-slide{
+    justify-content: center;
+  }
+  .containerServicios{
+    flex-direction: column;
+  }
+  .imgRat{
+    width: 100%;
+    height: 200px;
+  }
+  .imgIns{
+    width: 100%;
+    height: 200px;
+  }
+  .imgPal{
+    width: 100%;
+    height: 200px;
+  }
+  .imgSan{
+    width: 100%;
+    height: 200px;
+  }
+  .parrafo-card{
+    width: 50%;
+    padding: 0%;
+  }
+}
