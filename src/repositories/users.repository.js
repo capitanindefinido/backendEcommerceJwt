@@ -19,6 +19,10 @@ class UserRerpository {
     return await this.dao.update(uid, userToUpdate);
   }
   async deleteUser() {}
+
+  async deleteUsers(filter){
+    return await this.dao.deteleUsers(filter);
+  }
 }
 
 module.exports = UserRerpository;

@@ -7,6 +7,9 @@ const { EErrors } = require("../utils/errors/enums.js");
 const multer = require("multer");
 const path = require("path");
 const { upload, storage } = require("../middleware/multer.js");
+const UserDaoMongo = require("../Daos/Mongo/usersDaoMongo.js");
+const { transport } = require("winston");
+const { sendMail } = require("../utils/sendMail.js");
 
 class UserController {
   constructor() {
@@ -31,7 +34,7 @@ class UserController {
           name: "User creation error",
           cause: generateUserErrorInfo({ nombre, last_name, email }),
           message: "Error tyring to crearted user",
-          code: EErrors.INVALID_TYPE_ERROR,
+          code: EErrors.INVALID_TYPE_ERROR
         });
       }
 
@@ -70,12 +73,43 @@ class UserController {
       console.log(error);
     }
   };
+
+  deleteUsers = async (req, res) => {
+    try {
+      const currentDate = new Date();
+      const cutoffDate = new Date(
+        currentDate.getTime() - 2 * 24 * 60 * 60 * 1000
+      );
+      const result = await userService.deleteUsers({
+        last_connection: { $lt: cutoffDate }
+      });
+      if (result.length > 0) {
+        // Enviar correos electrónicos a los usuarios eliminados
+        for (const userEmail of result) {
+          await sendMail({
+            to: userEmail,
+            subject: "Eliminación de cuenta por inactividad",
+            html: "Tu cuenta ha sido eliminada debido a la inactividad."
+          });
+        }
+        res.status(200).json({ message: "Usuarios eliminados con éxito." });
+      } else {
+        res
+          .status(500)
+          .json({ message: "No se eliminaron usuarios por inactividad" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error al eliminar usuarios." });
+    }
+  };
+
   premiumUser = async (req, res) => {
     const { uid } = req.params;
     const result = await this.userService.updateUser(
       { _id: uid },
       {
-        role: "user-premium",
+        role: "user-premium"
       }
     );
     res.send("usuario paso a premium");
@@ -92,7 +126,7 @@ class UserController {
       }
 
       const uploadPromise = new Promise((resolve, reject) => {
-        upload.single("documento")(req, res, (err) => {
+        upload.single("documento")(req, res, err => {
           if (err) {
             console.error(err);
             reject({ message: "Error al cargar el documento" });

@@ -10,6 +10,7 @@ const {
     resetPasword,
     changePassword
 } = require('../controllers/views.controller.js')
+const { productModel } = require('../models/products.model.js')
 
 
 const router           = Router()
@@ -25,22 +26,28 @@ router
         })
 })
 
-router.get('/profile',
+router.get('/profile', [
     passportCall('jwt'),
     authorization(['USER', 'USER_PREMIUN', 'ADMIN']),
-    async (req,res)=>{
-        const userManagerMongo = new UserManagerMongo()
-        const user = await userManagerMongo.getBy({email: req.user.email})
+    ], async (req,res)=>{
+        try {
+            const userManagerMongo = new UserManagerMongo()
+            let email = req.user.email
+            const user = await userModel.findOne({ email });
+            
+            res.render('profile', {
+                showNav: true,
+                user: {
+                    email: user.email,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    role: user.role
+                }
+            })
+        } catch (error) {
+            console.log(error)
+        }
         
-        res.render('profile', {
-            showNav: true,
-            user: {
-                email: user.email,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                role: user.role
-            }
-        })
     }
 )
 
@@ -95,9 +102,11 @@ router.get('/products', async (req, res) => {
 })
 
 // Vista del detalle del producto
-router.get('/product-detail/:pid', (req, res) => {
+router.get('/product-detail/:pid', async (req, res) => {
+    const product = await productModel.findById(req.params.pid)
     res.status(200).render('productDetail',{
-        showNav: true    
+        showNav: true ,
+        product: product   
     })
 })
 
@@ -118,10 +127,10 @@ router.get('/realtimeproducts',
     }
 )
 
-router.get('/carts',  
-    // passportCall('jwt'), 
-    // authorization('user'), 
-    async (req, res) => {        
+router.get('/carts', [ 
+    passportCall('jwt'), 
+    authorization(['USER']), 
+    ], async (req, res) => {        
         // en esta parte tengo que tener el token con el users._id
         const cart = await cartManagerMongo.getBy({_id: '651c3fe98e5062e4fb9090ec'})
         // console.log(cart)
