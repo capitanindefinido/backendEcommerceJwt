@@ -111,15 +111,18 @@ router.get('/product-detail/:pid', async (req, res) => {
 })
 
 // vista del formulario de modificación del producto
-router.get('/product-edit-form/:pid', (req, res) => {
+router.get('/product-edit-form/:pid', async (req, res) => {
+    const product = await productModel.findById(req.params.pid)
     res.status(200).render('productEditForm',{
-        showNav: true
+        showNav: true,
+        product: product
     })
 })
 
-router.get('/realtimeproducts',  
-    // passportCall('jwt'), 
-    // authorization('user'), 
+router.get('/realtimeproducts',[
+    passportCall('jwt'), 
+    authorization(['ADMIN'])
+    ],   
     (req, res) => {
         res.status(200).render('realTimeProduct',{
             showNav: true            

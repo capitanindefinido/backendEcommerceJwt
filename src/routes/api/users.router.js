@@ -7,7 +7,8 @@ const {
     deleteUser,
     premiumUser,
     subirArchivo,
-    deleteUsers
+    deleteUsers,
+    modRole
 } = require('../../controllers/users.controller.js')
 
 const router = Router()
@@ -15,6 +16,7 @@ const router = Router()
 // rutas para usuarios
 router.get('/',                getUsers)
 router.post('/',               createUser)
+router.post('/:uid',           modRole);
 router.put('/:uid',            updateUser)
 router.delete('/:uid',         deleteUser)
 router.put('/premium/:uid',    premiumUser)

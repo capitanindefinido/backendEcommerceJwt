@@ -1,52 +1,98 @@
 <div class="container">
-    <h2 class="text-center mt-2">Formualrio para editar un producto</h2>
+    <h2 class="text-center mt-2">Formulario para editar un producto</h2>
     <div class="d-flex justify-content-center align-items-center mt-5"  id="div-form">
         
     </div>
 </div>
 <script>
     const getCidPid = () => {
-        const pid = window.location.pathname.split('/')[2]
-        const cid = '651c3fe98e5062e4fb9090ec'
-        return {pid, cid}
-    }
-    const createFrom = ( product ) => {
-        const divForm = document.querySelector('#div-form')
+        const pid = window.location.pathname.split('/')[2];
+        const cid = '651c3fe98e5062e4fb9090ec';
+        return { pid, cid };
+    };
+
+    const createForm = (product) => {
+        const divForm = document.querySelector('#div-form');
         divForm.innerHTML = `
-            <form id="form-product" class="w-50" >
-            <h4 class="text-center">FORMULARIO MODIFICAR PRODUCTO</h4>
-            <label class='for-label mt-2' ><strong>Id del producto(no se puede modificar)</strong></label>
-            <input class="form-control bg-light" type="text"   name="id"          value=${product._id}  readonly >
-            <label class='for-label mt-2' ><strong>Nombre del producto</strong></label>
-            <input class="form-control" type="text"   name="title"       value=${product.title}        >
-            <label class='for-label mt-2' ><strong>Descripción del producto</strong></label>
-            <input class="form-control" type="text"   name="description" value=${product.description}   >
-            <label class='for-label mt-2' ><strong>Precio del producto</strong></label>
-            <input class="form-control" type="number" name="price"       value=${product.price}          >
-            <label class='for-label mt-2' ><strong>Stock del producto</strong></label>
-            <input class="form-control" type="number" name="stock"       value=${product.stock}        >
-            <label class='for-label mt-2' ><strong>Imágen del producto</strong></label>
-            <input class="form-control" type="text"   name="thumbnail"   value=${product.thumbnail}    >
-            <label class='for-label mt-2' ><strong>Código del producto(no se puede modificar)</strong></label>
-            <input class="form-control bg-light" type="text"   name="code"        value=${product.code } readonly >
-            <br>
-            <input class="form-control btn btn-outline-dark" type="submit">
-        </form>
-        `
-    }
+            <form id="form-product" class="w-50">
+                <h4 class="text-center">FORMULARIO MODIFICAR PRODUCTO</h4>
+                <label class='for-label mt-2'><strong>Id del producto (no se puede modificar)</strong></label>
+                <input class="form-control bg-light" type="text" name="id" value="${product._id}" readonly>
+                <label class='for-label mt-2'><strong>Nombre del producto</strong></label>
+                <input class="form-control" type="text" name="title" value="${product.title}">
+                <label class='for-label mt-2'><strong>Descripción del producto</strong></label>
+                <input class="form-control" type="text" name="description" value="${product.description}">
+                <label class='for-label mt-2'><strong>Precio del producto</strong></label>
+                <input class="form-control" type="number" name="price" value="${product.price}">
+                <label class='for-label mt-2'><strong>Stock del producto</strong></label>
+                <input class="form-control" type="number" name="stock" value="${product.stock}">
+                <label class='for-label mt-2'><strong>Imágen del producto</strong></label>
+                <input class="form-control" type="text" name="thumbnail" value="${product.thumbnail}">
+                <label class='for-label mt-2'><strong>Código del producto (no se puede modificar)</strong></label>
+                <input class="form-control bg-light" type="text" name="code" value="${product.code}" readonly>
+                <br>
+                <input class="form-control btn btn-outline-dark" type="submit">
+            </form>
+        `;
+        
+        const formProduct = document.querySelector('#form-product');
 
-    const getProduct = async ( pid ) => {
-        const productDataJson = await fetch(`http://localhost:8080/api/products/${pid}`)
-        const productData = await productDataJson.json()
-        return productData.payload
-    }
+        // Agregar el controlador de eventos para el envío del formulario
+        formProduct.addEventListener('submit', (event) => {
+        event.preventDefault();
 
-    const { pid } = getCidPid()
+        // Obtener los datos del formulario
+        const formData = new FormData(formProduct);
+        const requestData = {};
+        formData.forEach((value, key) => {
+            requestData[key] = value;
+        });
+
+        // Realizar la solicitud PUT al servidor
+        fetch(`http://localhost:4000/api/products/${product._id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            // Manejar la respuesta del servidor
+            if (data.status === 'success') {
+                // Mostrar SweetAlert y recargar la página
+                Swal.fire(
+                    'Modificado!',
+                    'El producto ha sido modificado.',
+                    'success'
+                )
+                .then(() => {
+                    window.location.reload();
+                });
+            } else {
+                // Manejar otros casos si es necesario
+                console.error('Error al modificar el producto:', data.error);
+            }
+        })
+        .catch(error => console.error('Error en la solicitud PUT:', error));
+    });
+    };
+
+    const getProduct = async (pid) => {
+        const productDataJson = await fetch(`http://localhost:4000/api/products/${pid}`);
+        const productData = await productDataJson.json();
+        return productData.payload;
+    };
+
+    const { pid } = getCidPid();
     getProduct(pid)
-    .then(product => {
-        //console.log(product.title)
-        createFrom(product)
-    })
-    .catch(error => console.log(error))
+        .then(product => {
+            console.log(product.title);
+            createForm(product);
+        })
+        .catch(error => console.log(error));
 </script>
+
 

@@ -1,5 +1,5 @@
 const { userService } = require("../service/service.js");
-
+const { userModel } = require("../models/user.model.js");
 const UserDto = require("../Dto/users.dto.js");
 const { createError } = require("../utils/errors/CustomError.js");
 const { generateUserErrorInfo } = require("../utils/errors/info.js");
@@ -114,6 +114,20 @@ class UserController {
     );
     res.send("usuario paso a premium");
   };
+
+  modRole = async (req, res) => {
+    const { uid } = req.params;
+    const { newRole } = req.body;
+
+    try {
+        const updatedUser = await userModel.findByIdAndUpdate(uid, { role: newRole }, { new: true });
+
+        res.redirect('/users');
+    } catch (error) {
+        console.error('Error al actualizar el rol del usuario:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+}
 
   subirArchivo = async (req, res) => {
     const uid = req.params.uid;

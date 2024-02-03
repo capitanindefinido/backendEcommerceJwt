@@ -93,4 +93,5 @@ const handleEliminar = (id) => {
         }
     })   
 }
+
 // buttonEliminar.addEventListener('click', handleEliminar)

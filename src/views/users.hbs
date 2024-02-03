@@ -1,7 +1,16 @@
 <h1>Users</h1>
 <div>
     {{#each users}}
-        <li><strong>Nombre: </strong>{{this.first_name}} - {{this.last_name}}- <strong>Email: </strong>{{this.email}}</li>
+        <li><strong>Nombre: </strong>{{this.first_name}} - {{this.last_name}} - <strong>Rol: </strong>{{this.role}} <strong>Email: </strong>{{this.email}}</li>
+        <form action="/api/users/{{this._id}}" method="POST" class="user-role-form">
+            <select name="newRole">
+                <option value="user">Usuario</option>
+                <option value="user_premium">Usuario Premium</option>
+                <option value="admin">Administrador</option>
+            </select>
+            <button type="submit" class="btn btn-dark">Modificar Rol</button>
+        </form>
+        <button class="btn btn-dark">Eliminar</button>
     {{/each}}
     <center>
         {{#if hasPrevPage}}

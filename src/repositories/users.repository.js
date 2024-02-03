@@ -21,7 +21,7 @@ class UserRerpository {
   async deleteUser() {}
 
   async deleteUsers(filter){
-    return await this.dao.deteleUsers(filter);
+    return await this.dao.deleteUsers(filter);
   }
 }
 
