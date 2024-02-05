@@ -28,7 +28,6 @@ router
 
 router.get('/profile', [
     passportCall('jwt'),
-    authorization(['USER', 'USER_PREMIUN', 'ADMIN']),
     ], async (req,res)=>{
         try {
             const userManagerMongo = new UserManagerMongo()
@@ -106,7 +105,7 @@ router.get('/product-detail/:pid', async (req, res) => {
     const product = await productModel.findById(req.params.pid)
     res.status(200).render('productDetail',{
         showNav: true ,
-        product: product   
+        product: product._doc   
     })
 })
 
@@ -121,9 +120,9 @@ router.get('/product-edit-form/:pid', async (req, res) => {
 
 router.get('/realtimeproducts',[
     passportCall('jwt'), 
-    authorization(['ADMIN'])
+    authorization(['ADMIN']),
     ],   
-    (req, res) => {
+    async (req, res) => {
         res.status(200).render('realTimeProduct',{
             showNav: true            
         })
@@ -135,7 +134,7 @@ router.get('/carts', [
     authorization(['USER']), 
     ], async (req, res) => {        
         // en esta parte tengo que tener el token con el users._id
-        const cart = await cartManagerMongo.getBy({_id: '651c3fe98e5062e4fb9090ec'})
+        const cart = await cartManagerMongo.getBy({_id: '65975c914af1fd5fe39e9e18'})
         // console.log(cart)
         res.status(200).render('carts', {
             showNav: true,
@@ -188,7 +187,7 @@ router.get('/users', [
 // chat
 router.get('/chat', [ 
         passportCall('jwt'), 
-        authorization(['USER', 'USER_PREMIUN', 'ADMIN'])
+        authorization(['USER', 'USER-PREMIUM', 'ADMIN'])
     ], 
     (req, res) => {
         res.render('chat', {showNav: true})

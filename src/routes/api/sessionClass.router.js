@@ -24,7 +24,7 @@ class SessionsRouter extends RouterClass {
                     first_name: user.first_name,
                     last_name: user.last_name,
                     email: user.email,
-                    role: 'admin'
+                    role: user.role
                 })
                 // dos formas de enviar el token
                 res.cookie('cookieToken', token, {

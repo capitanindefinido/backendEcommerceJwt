@@ -7,6 +7,7 @@ const { generateToken } = require("../../utils/jsonwebtoken.js");
 const { sendMail } = require("../../utils/sendMail.js");
 const { configObject } = require("../../config/config.js");
 const jwt = require("jsonwebtoken");
+const { authorization } = require('../../middleware/authorization.middleware.js');
 
 const router = Router();
 const userService = new UserDaoMongo();
@@ -29,7 +30,7 @@ router.post("/login", async (req, res) => {
     first_name: user.first_name,
     last_name: user.last_name,
     email: user.email,
-    role: "admin",
+    role: user.role,
   });
 
   const newUser = await userService.update(
@@ -201,8 +202,8 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
-// http://localhost:8080/api/sessions /logout
-router.post("/logout", async (req, res, cookieToken) => {
+/*router.post("/logout", async (req, res, cookieToken) => {
+  console.log(req.body)
   req.session.destroy((error) => {
     if (error) {
       return res.json({ status: "Logout Error", body: error });
@@ -210,6 +211,28 @@ router.post("/logout", async (req, res, cookieToken) => {
     res.redirect("../../login");
   });
   res.send("cerrada la session");
+});*/
+
+router.post("/logout", async (req, res) => {
+  try {
+    // Lógica para invalidar el token o realizar acciones de logout, si es necesario
+    // Puedes eliminar la cookie, invalidar el token, o realizar otras acciones según tus necesidades
+
+    // Eliminar la cookie
+    res.clearCookie("cookieToken");
+
+    // Envía una respuesta exitosa
+    res.status(200).send({
+      status: "success",
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      status: "error",
+      error: "Error during logout",
+    });
+  }
 });
 
 router.delete("/user/:uid", async (req, res) => {

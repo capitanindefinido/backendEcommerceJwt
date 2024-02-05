@@ -1,4 +1,8 @@
+const jwt = require('jsonwebtoken')
 const { productService } = require("../service/service")
+const { authToken } = require("../utils/jsonwebtoken")
+const { productModel } = require('../models/products.model')
+const { sendMail } = require("../utils/sendMail.js");
 
 class ProductController {
     constructor(){
@@ -31,22 +35,29 @@ class ProductController {
             console.log(error)
         }
     }
-    async createProduct(req,res){
+    async createProduct(req, res) {
         try {
-            const newProduct = req.body
-            console.log(newProduct.title)
-            // if (!newProduct.title  && !newProduct.code && !newProduct.price && !newProduct.stock) {
-            if (!newProduct.title  ) {
-                return res.send({status: 'error', error: 'El producto tiene que tener todos los campos'})
+            const newProduct = req.body;
+            const token = req.cookies.cookieToken   
+            let user = jwt.verify(token, 'secret')
+            // Verificar que el usuario esté autenticado
+            if (!user) {
+                return res.status(401).send({ status: 'error', error: 'Usuario no autenticado' });
             }
     
-            let result =  await productService.createProduct(newProduct)
+            // Agregar el rol del usuario al producto
+            newProduct.emailOwner = user.email;
+            newProduct.createBy = user.role;
+            // Crear el producto
+            const result = await productService.createProduct(newProduct);
+    
             res.send({
                 status: 'success',
                 payload: result
-            })
+            });
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            res.status(500).send({ status: 'error', error: 'Error interno del servidor' });
         }
     }
     async updateProduct(req,res){
@@ -66,6 +77,16 @@ class ProductController {
         try {
             const { pid } = req.params
             // console.log(pid)
+            const product = await productModel.findById(pid)
+            const productOwner = product._doc.createBy
+            const productOwnerEmail = product._doc.emailOwner
+            if(productOwner == 'user-premium'){
+                await sendMail({
+                    to: productOwnerEmail,
+                    subject: "Se elimina producto con owner Premium",
+                    html: "Se elimina producto correctamente."
+                  });
+            }
             const result = await productService.deleteProduct(pid)
             console.log(result)
             res.send({

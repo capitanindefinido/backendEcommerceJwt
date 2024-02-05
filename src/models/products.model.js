@@ -26,10 +26,8 @@ const ProductSchema = new Schema({
         type: Boolean,
         default: true
     },
-    createBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'users'
-    }
+    createBy: String,
+    emailOwner: String,
 })
 ProductSchema.plugin(mongoosePaginate)
 const productModel = model(colleciton, ProductSchema)

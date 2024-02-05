@@ -19,6 +19,11 @@
     <a href="/register">Registrarme</a>
     <br>
     <a href="/forgot-password">Forgot password</a>
+    <br>
+    <form id="logoutForm" action="/api/sessions/logout" method="post">
+        <button type="submit" class="btn btn-outline-dark w-100">Logout</button>
+    </form>
+
 
 </div>
 
@@ -49,4 +54,29 @@
             console.log(error.message)
         })
     })
+
+    const logoutForm = document.getElementById('logoutForm');
+
+    logoutForm.addEventListener('submit', event => {
+        event.preventDefault();
+
+        fetch('/api/sessions/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then((data) => {
+            if (data.status === 'success') {
+                // Realizar acciones adicionales después del logout si es necesario
+                window.location.href = '/login';
+            } else {
+                console.log('Error en el logout:', data.body);
+            }
+        })
+        .catch((error) => {
+            console.log('Error en el logout:', error.message);
+        });
+    });
 </script>

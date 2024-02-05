@@ -1,108 +1,86 @@
 <div class="container mt-5">
     <h2 class="text-center">Detalle</h2>
-        <div class="row" id="product">
-            <div class="product-details">
-            <p>{{product._id}}</p>
-            <h2>{{product.description}}</h2>
-            <p>Precio: ${{product.price}}</p>
-            <p>Stock: {{product.stock}}</p>
-            <p>Categoría: {{product.category}}</p>
-            <p>Estado: {{product.availability}}</p>
-            <button>Agregar al Carrito</button>
-        </div>
+    <div class="row" id="product">
+        <!-- Aquí irá el contenido dinámico del producto -->
     </div>
 </div>
 
 <script>
     const getProductId = async () => {
-        //traer el id de la url
-        //const url = window.location.href        
-        //const id = url.substring(url.lastIndexOf('/') + 1)
-        const id = window.location.pathname.split('/')[2]
-
-        const data    = await fetch(`http://localhost:8080/api/products/${id}`)
-        const dataJson = await data.json()    
-        return dataJson.payload       
-    }
+        const id = window.location.pathname.split('/')[2];
+        const data = await fetch(`http://localhost:4000/api/products/${id}`);
+        const dataJson = await data.json();
+        return dataJson.payload;
+    };
 
     const insertProductUi = async () => {
-        const product = await getProductId()
-        console.log(product)
-        const div = document.querySelector('#product')
+        const product = await getProductId();
+        const productContainer = document.querySelector('#product');
 
-        div.innerHTML=`
-
+        productContainer.innerHTML = `
             <div class="col-12 col-md-6 mt-5">
                 <img src="${product.thumbnail}" alt="${product.title}" class="img-fluid">
             </div>
-
             <div class="col-12 col-md-6 mt-5">
                 <h3>${product.title}</h3>
                 <p>Descripción: ${product.description}</p>
                 <p>Precio: $${product.price}</p>
                 <p>Stock: ${product.stock}</p>
                 <p>Categoría: ${product.category}</p>
-                
-                <form class="form-group w-50" id="agregarCarrito" >
+                <form class="form-group w-50" id="agregarCarrito">
                     <label for="cantidad" class="form-label w-100">Cantidad:</label>
-                    <select class="mt-3  form-control-lg w-100">
-                        <option value="1" selected>1 Producto</option>
-                        <option value="2">2 Productos</option>
-                        <option value="3">3 Productos</option>
-                        <option value="4">4 Productos</option>
-                        <option value="5">5 Productos</option>
-                        <option value="6">6 Productos</option>
+                    <select class="mt-3 form-control-lg w-100" id="quantitySelect">
+                        ${Array.from({ length: 6 }, (_, i) => `<option value="${i + 1}">${i + 1} Producto${i !== 0 ? 's' : ''}</option>`).join('')}
                     </select>
                     <br>
-                    <button class="btn btn-outline-dark btn-lg mt-3 w-100">Agregar al carrito</button>
+                    <button class="btn btn-outline-dark btn-lg mt-3 w-100" id="addToCartBtn">Agregar al carrito</button>
                 </form>
             </div>
-        `
-    }
+        `;
+    };
 
     const addToCart = () => {
-        const agregarCarrito = document.querySelector('#agregarCarrito')
-        agregarCarrito.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            const pid = window.location.pathname.split('/')[2]
-            const cid = '651c3fe98e5062e4fb9090ec'
-            const quantity = parseInt(agregarCarrito.querySelector('select').value)
-            const data = {                
-                quantity
-            }
-            const result = await fetch(`http://localhost:8080/api/carts/${cid}/products/${pid}`, {
+        const addToCartBtn = document.querySelector('#addToCartBtn');
+
+        addToCartBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const pid = window.location.pathname.split('/')[2];
+            const cid = '65975c914af1fd5fe39e9e18';
+            const quantity = parseInt(document.querySelector('#quantitySelect').value);
+            const data = { quantity };
+
+            const result = await fetch(`http://localhost:4000/api/carts/${cid}/products/${pid}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            const dataJson = await result.json()
-            if(dataJson.status === 'error') {
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const dataJson = await result.json();
+
+            if (dataJson.status === 'error') {
+                const message = dataJson.message === 'No autorizado' ? 'Debes iniciar sesión para agregar productos al carrito' : dataJson.message;
+
                 Toastify({
-                    text: dataJson.message === 'No autorizado' ? 'Debes iniciar sesión para agregar productos al carrito' : dataJson.message,
+                    text: message,
                     duration: 2000,
                     gravity: 'top',
                     position: 'right',
-                }).showToast()
-                return
+                }).showToast();
+                return;
             }
+
             Toastify({
-                text: `SE agregó ${quantity} {{this.product.title}} al carrito!`,
+                text: `Se agregó ${quantity} ${product.title} al carrito!`,
                 duration: 2000,
                 gravity: 'top',
                 position: 'right',
-            }).showToast()
-                      
-        })
-    }
+            }).showToast();
+        });
+    };
 
-
-    insertProductUi()
-    .then(async () => {
-        await addToCart()
-    })
-
-
-    
+    // Invocar las funciones después de que el DOM se cargue completamente
+    document.addEventListener('DOMContentLoaded', async () => {
+        await insertProductUi();
+        addToCart();
+    });
 </script>

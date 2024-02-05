@@ -18,7 +18,7 @@ router.get('/:cid', async (req, res) => {
     })
 })
 
-//  api/carts - PUT - /:cid
+//  api/carts - post - /:cid
 router.post('/', async (req, res) => {
     const email = req.body.userEmail
     const cart = await serviceCarts.create(email)
