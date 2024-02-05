@@ -15,6 +15,9 @@ switch (persistence) {
 
         const ProductDaoMongo = require('./Mongo/productsDaoMongo.js')
         ProductDao = ProductDaoMongo
+
+        const TicketDaoMongo = require('./Mongo/ticketsDaoMongo.js')
+        TicketDao = TicketDaoMongo
         break;
     
     case "MEMORY":
@@ -32,5 +35,6 @@ switch (persistence) {
 module.exports = {
     UserDao,
     MessageDao,
-    ProductDao
+    ProductDao,
+    TicketDao
 }

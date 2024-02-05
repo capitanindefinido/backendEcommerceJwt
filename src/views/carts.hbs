@@ -1,35 +1,46 @@
-<div class="container text-center">
-    <h2>Carrito</h2>
-
-</div>
-
-
-{{#each products}}
-    <div class="mt-5">
-        <img src="{{this.product.thumbnail}}" style="width: 100px;">        
-        <label>Nombre: {{this.product.title}}</label>       
-        <label>- Cantidad: {{this.quantity}}</label>
-        <label>- Precio: {{this.product.price}}</label>
-        
-        <button class="btn btn-outline-danger" onclick="deleteProduct('{{this.product._id}}')"> X </button>
-        {{!-- <div>{{this.cid}}</div> --}}
+<!-- viewProducts.handlebars -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Producto</title>
+    <!-- Agrega tus estilos CSS aquí -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <a href="/">Seguir comprando</a>
+     Carrito de usuario {{user}}
+    <div class="product-details">
+        <p>Carrito ID: {{carts._id}}</p>
+        <h2>Productos en el carrito:</h2>
+        <ul>
+            {{#each carts.products}}
+                <li>
+                    <p>Producto ID: {{this.product._id}}</p>
+                    <p>Descripción: {{this.product.description}}</p>
+                    <p>Precio: ${{this.product.price}}</p>
+                    <p>Cantidad: {{this.quantity}}</p>
+                    <p>Total Item: ${{this.total}}</p>
+                </li>
+            {{/each}}
+        </ul>
+        <p>Suma Total: ${{calculateSumTotal carts.products}}</p>
+       <p id="totalPriceDisplay"></p> 
+        <form action="/checkout" method="GET">
+            <!-- Puedes agregar campos ocultos para enviar información adicional si es necesario -->
+            <input type="hidden" name="cartId" value="{{carts._id}}">
+            <input type="hidden" name="purchaser" value="{{user}}">
+            <input type="hidden" name="totalPrice" value="{{calculateSumTotal carts.products}}">
+            <!-- Agrega el botón de envío -->
+            <button type="submit">Completar Compra</button>
+        </form>
     </div>
-    <hr>
-{{/each}}
-    <button class="btn btn-outline-danger">Vaciar carrito</button>
-    <button class="btn btn-outline-dark">Terminar compra</button>
-    {{!-- {{cid}} --}}
 
-<script>
-    const deleteProduct = async (pid) => {
-        
-        const response = await fetch(`http://localhost:8080/api/carts/651c3fe98e5062e4fb9090ec/products/${pid}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        const data = await response.json()
-        window.location.reload()
-    }
-</script>
+    <!-- Agrega cualquier otro contenido que desees mostrar en la página -->
+
+    <footer>
+        <!-- Agrega contenido del pie de página si es necesario -->
+    </footer>
+</body>
+</html>

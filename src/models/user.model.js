@@ -20,6 +20,7 @@ const userSchema = new Schema({
     unique: true,
   },
   password: String,
+  id_cart: String,
   role: {
     type: String,
     enum: ["user", "user_premium", "admin"],

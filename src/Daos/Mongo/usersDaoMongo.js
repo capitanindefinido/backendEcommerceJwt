@@ -48,6 +48,43 @@ class UserDaoMongo {
     }
     //return this.model.usersMongo
   }
+
+  async getIdCartByEmailUser(email) {
+    try {
+      // Buscar el usuario por correo electrónico en tu modelo de usuario
+      const user = await this.model.findOne({ email });
+  
+      // Verificar si se encontró un usuario y si tiene un rol premium
+      if (user && user.id_cart) {
+        return user.id_cart;
+      } else {
+          return null; // O cualquier valor que indique que no se encontró un carrito
+      }
+    } catch (error) {
+      console.error('Error al obtener el rol del usuario:', error);
+      return 'Error al obtener el rol del usuario';
+    }
+  };
+
+  updateIdCartUser = async ({email, newIdCart}) => {
+    try {
+      const updatedUser = await this.model.findOneAndUpdate(
+        { email: email },
+        { $set: { id_cart: newIdCart } },
+        { new: true }
+      );
+  
+      if (updatedUser) {
+        return updatedUser;
+      } else {
+        console.error('Usuario no encontrado');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al actualizar el id_Cart del usuario:', error);
+      throw error;
+    }
+  };
 }
 
 module.exports = UserDaoMongo;

@@ -1,6 +1,8 @@
 const { Router } = require('express')
 const { cartModel } = require('../../models/carts.model')
 const CartDaoMongo = require('../../Daos/Mongo/cartsDaoMongo')
+const { default: TicketDTO } = require('../../Dto/ticket.dto')
+const { ticketService } = require('../../service/service')
 
 const router = Router()
 const serviceCarts = new CartDaoMongo()
@@ -28,8 +30,6 @@ router.post('/', async (req, res) => {
     })
 })
 
-
-
 // /api/carts - PUT - /:cid/products/:pid
 router.put('/:cid/products/:pid', async (req, res) => {
     const {cid, pid} = req.params
@@ -56,6 +56,31 @@ router.put('/:cid', async (req, res) => {})
 // /api/carts - delete - /:cid
 router.delete('/:cid', async (req, res) => {
     res.send({status: 'success', payload: 'result'})
+})
+
+router.post("/:cid/purchase", async (req, res) => {
+    try {
+        let id_cart = req.params.cid;
+        const productos = req.body.productos;
+        const correo = req.body.correo;
+        let cart = serviceCarts.getCart(id_cart)
+        if (!cart) {
+            req.logger.error("No se encontró el carrito con el ID proporcionado");
+            return { error: "No se encontró el carrito con el ID proporcionado" };
+        }
+        let validaStock = serviceCarts.getStock({productos})
+
+        if (validaStock) {
+            let totalAmount = await serviceCarts.getAmount({productos})
+            const ticketFormat = new TicketDTO({amount:totalAmount, purchaser:correo});
+            const result = await ticketService.createTicket(ticketFormat);
+        } else {
+            req.logger.error("No hay suficiente stock para realizar la compra");
+        }
+    } catch (error) {
+        req.logger.error("Error al procesar la compra:" + error.message);
+        return res.status(500).json({ error: "Error interno al procesar la compra" });
+    }
 })
 
 module.exports = router
