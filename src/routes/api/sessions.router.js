@@ -8,13 +8,17 @@ const { sendMail } = require("../../utils/sendMail.js");
 const { configObject } = require("../../config/config.js");
 const jwt = require("jsonwebtoken");
 const { authorization } = require('../../middleware/authorization.middleware.js');
+const CartDaoMongo = require("../../Daos/Mongo/cartsDaoMongo.js");
 
 const router = Router();
 const userService = new UserDaoMongo();
+const cartService = new CartDaoMongo();
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await userModel.findOne({ email });
+  const cart = await cartService.create(req.body.email)
+
   if (!user)
     return res
       .status(401)
@@ -25,18 +29,22 @@ router.post("/login", async (req, res) => {
       .status(401)
       .send({ status: "error", error: "Contraseña incorrecta" });
   }
-
+  const idCartUser = cart._doc._id.toString()
+  const newUser = await userService.update(
+    {_id: user._doc._id.toString()},{
+      last_connection: new Date(),
+      id_cart: idCartUser
+    }
+  );
   const token = generateToken({
     first_name: user.first_name,
     last_name: user.last_name,
     email: user.email,
     role: user.role,
+    id_cart: user.id_cart,
   });
 
-  const newUser = await userService.update(
-    { _id: user._doc._id.toString() },
-    { last_connection: new Date() }
-  );
+  
 
   // dos formas de enviar el token
   res
@@ -87,6 +95,7 @@ router.post("/register", async (req, res) => {
       last_name,
       email,
       role: "user",
+      id_cart,
     });
     res
       .cookie("cookieToken", token, {
@@ -215,9 +224,10 @@ router.post("/change-password", async (req, res) => {
 
 router.post("/logout", async (req, res) => {
   try {
-    // Lógica para invalidar el token o realizar acciones de logout, si es necesario
-    // Puedes eliminar la cookie, invalidar el token, o realizar otras acciones según tus necesidades
-
+    const token = req.cookies.cookieToken   
+    let user = jwt.verify(token, 'secret')
+    const cartId = user.id_cart
+    await cartService.removeAllProductsFromCart(cartId)
     // Eliminar la cookie
     res.clearCookie("cookieToken");
 

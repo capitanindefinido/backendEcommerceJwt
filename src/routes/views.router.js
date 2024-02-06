@@ -60,29 +60,26 @@ router.get('/profile', [
     }
 )
 
-router.get('/', async (req, res)=>{
+router.get('/',[
+    passportCall('jwt'),
+    ], async (req, res)=>{
     const {limit, numPage, sort} = req.params
     let serviceProducts = new ProductDaoMongo()
-    let serviceUsers = new UserDaoMongo()
+    const token = req.cookies.cookieToken
+    const user = jwt.verify(token, 'secret')    
     const {
         docs,
         hasPrevPage,
         prevPage,
         hasNextPage,
         nextPage,
-        page
+        page,
     } = await serviceProducts.get({limit, page: numPage, sort: {price: sort}, lean: true})
 
-    /* const token = req.cookies.cookieToken
-    
-    let user = jwt.verify(token, 'secret')
-    const idCartUser = await serviceUsers.getIdCartByEmailUser(user.email) */
     
     res.render('index', {
+        user: user,
         showNav: true,
-        /* cartId : idCartUser,
-        user: user, */
-        name: 'federico',
         products: docs,
         hasPrevPage,
         prevPage,
@@ -119,11 +116,27 @@ router.get('/products', async (req, res) => {
 
 // Vista del detalle del producto
 router.get('/product-detail/:pid', async (req, res) => {
-    const product = await productModel.findById(req.params.pid)
-    res.status(200).render('productDetail',{
-        showNav: true ,
-        product: product._doc   
-    })
+    try {
+        const product = await productModel.findById(req.params.pid)
+        const token = req.cookies.cookieToken
+        let user = jwt.verify(token, 'secret')
+        const sendProduct = {
+            title: product.title,
+            thumbnail: product.thumbnail,
+            description: product.description,
+            price: product.price,
+            stock: product.stock,
+            category: product.category,
+        }
+        res.status(200).render('productDetail',{
+            user: user,
+            showNav: true ,
+            product: sendProduct   
+        })
+    } catch (error) {
+        console.log(error)
+    }
+    
 })
 
 // vista del formulario de modificación del producto
@@ -189,6 +202,7 @@ router.get("/checkout", async (req, res) => {
     let totalAmount = req.query.totalPrice
     let newCart = await cartManagerMongo.create(purchaser)
     let newIdCart = newCart._id.toString()
+    await cartService.removeAllProductsFromCart(cartId)
     //let updateUser = await UserManagerMongo.updateIdCartUser({email: purchaser, newIdCart})
     if(newCart)
     {

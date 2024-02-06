@@ -56,6 +56,7 @@ const inizializePassport = ( ) => {
                     first_name: profile.username,
                     last_name: profile.username,
                     email: profile._json.email,
+                    id_cart: profile.id_cart,
                     password: ''
                 }
 

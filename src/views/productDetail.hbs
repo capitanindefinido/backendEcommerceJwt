@@ -1,5 +1,6 @@
 <div class="container mt-5">
     <h2 class="text-center">Detalle</h2>
+    <div id="idCart">{{user.id_cart}}</div>
     <div class="row" id="product">
         <!-- Aquí irá el contenido dinámico del producto -->
     </div>
@@ -8,10 +9,11 @@
 <script>
     const getProductId = async () => {
         const id = window.location.pathname.split('/')[2];
-        const data = await fetch(`http://localhost:4000/api/products/${id}`);
+        const data = await fetch(`http://localhost:4000/api/products/${id.toString()}`);
         const dataJson = await data.json();
         return dataJson.payload;
     };
+
 
     const insertProductUi = async () => {
         const product = await getProductId();
@@ -40,12 +42,13 @@
     };
 
     const addToCart = () => {
+    try {
         const addToCartBtn = document.querySelector('#addToCartBtn');
 
         addToCartBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             const pid = window.location.pathname.split('/')[2];
-            const cid = '65975c914af1fd5fe39e9e18';
+            const cid = document.querySelector('#idCart').innerText; // Cambiado de .value a .innerText
             const quantity = parseInt(document.querySelector('#quantitySelect').value);
             const data = { quantity };
 
@@ -76,7 +79,11 @@
                 position: 'right',
             }).showToast();
         });
-    };
+    } catch (error) {
+        console.log(error);  // Cambiado de "conrole" a "console"
+    }
+};
+
 
     // Invocar las funciones después de que el DOM se cargue completamente
     document.addEventListener('DOMContentLoaded', async () => {
