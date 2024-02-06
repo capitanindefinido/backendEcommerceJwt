@@ -3,6 +3,7 @@ const { configObject: {persistence, conectDB} } = require('../config/config.js')
 let MessageDao
 let UserDao
 let ProductDao
+let TicketDao
 
 switch (persistence) {
     case "MONGO":
