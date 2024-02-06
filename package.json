@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "mocha test/supertest.test.js",
-    "start": "node server.js --mode production",
+    "start": "node src/server.js --mode production",
     "dev": "nodemon src/server.js --mode development"
   },
   "keywords": [],
