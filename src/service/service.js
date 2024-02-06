@@ -1,5 +1,5 @@
 
-const { UserDao, MessageDao, ProductDao, TicketDao } = require("../Daos/factory.js")
+const { UserDaoMongo, MessageDaoMongo, ProductDaoMongo, TicketDaoMongo } = require("../Daos/factory.js")
 
 const UserRerpository = require("../repositories/users.repository.js")
 const MessageRepository = require("../repositories/message.repository.js")

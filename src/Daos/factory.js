@@ -34,8 +34,8 @@ switch (persistence) {
 }
 
 module.exports = {
-    UserDao,
-    MessageDao,
-    ProductDao,
-    TicketDao
+    UserDaoMongo,
+    MessageDaoMongo,
+    ProductDaoMongo,
+    TicketDaoMongo
 }
