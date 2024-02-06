@@ -2,6 +2,9 @@ const { userModel } = require("../../models/user.model");
 const { userDto } = require ("../../Dto/users.dto")
 // persistencia/model
 class UserDaoMongo {
+  constructor(){
+    
+  }
   constructor() {
     this.model = userModel;
   }
