@@ -1,9 +1,9 @@
 const { configObject: {persistence, conectDB} } = require('../config/config.js')
 
-let MessageDao
-let UserDao
-let ProductDao
-let TicketDao
+const MessageDao = null
+const UserDao = null
+const ProductDao = null
+const TicketDao = null
 
 switch (persistence) {
     case "MONGO":
@@ -11,7 +11,7 @@ switch (persistence) {
         const MessageDaoMongo = require('./Mongo/messagesDaosMongo.js') 
         MessageDao = MessageDaoMongo
         
-        const UserDaoMongo    = require('./Mongo/usersDaoMongo.js')
+        const UserDaoMongo = require('./Mongo/usersDaoMongo.js')
         UserDao    = UserDaoMongo
 
         const ProductDaoMongo = require('./Mongo/productsDaoMongo.js')
@@ -34,8 +34,8 @@ switch (persistence) {
 }
 
 module.exports = {
-    UserDaoMongo,
-    MessageDaoMongo,
-    ProductDaoMongo,
-    TicketDaoMongo
+    UserDao,
+    MessageDao,
+    ProductDao,
+    TicketDao
 }
