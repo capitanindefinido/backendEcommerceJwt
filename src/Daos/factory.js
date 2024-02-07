@@ -1,21 +1,25 @@
 const { configObject: {persistence, conectDB} } = require('../config/config.js')
 
+const MessageDao = null
+const UserDao = null
+const ProductDao = null
+const TicketDao = null
  
 
 switch (persistence) {
     case "MONGO":
         conectDB()
         const MessageDaoMongo = require('./Mongo/messagesDaosMongo.js') 
-        const MessageDao = MessageDaoMongo
+        MessageDao = MessageDaoMongo
         
         const UserDaoMongo = require('./Mongo/usersDaoMongo.js')
-        const UserDao    = UserDaoMongo
+        UserDao    = UserDaoMongo
 
         const ProductDaoMongo = require('./Mongo/productsDaoMongo.js')
-        const ProductDao = ProductDaoMongo
+        ProductDao = ProductDaoMongo
 
         const TicketDaoMongo = require('./Mongo/ticketsDaoMongo.js')
-        const TicketDao = TicketDaoMongo
+        TicketDao = TicketDaoMongo
         break;
     
     case "MEMORY":
