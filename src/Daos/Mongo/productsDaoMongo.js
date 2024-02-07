@@ -2,6 +2,7 @@ const { productModel } = require("../../models/products.model")
 
 class ProductDaoMongo {
     constructor(){
+        this.model = productModel
     }
     async get({filter={isActive: true}, limit=10, page=1, sort={price: 1}}){        
         return await this.model.paginate(filter, {limit, page, sort, lean: true})
