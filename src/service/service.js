@@ -7,10 +7,10 @@ const ProductRepository = require("../repositories/products.repository.js")
 const TicketRepository = require("../repositories/tickets.repository.js")
 
 
-const userService     = new UserRerpository(UserDao)
-const messageService  = new MessageRepository(MessageDao)
-const productService  = new ProductRepository(ProductDao)
-const ticketService = new TicketRepository(TicketDao)
+const userService     = new UserRerpository(new UserDao())
+const messageService  = new MessageRepository(new MessageDao())
+const productService  = new ProductRepository(new ProductDao())
+const ticketService = new TicketRepository(new TicketDao())
 
 module.exports = {
     userService,
