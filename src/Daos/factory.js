@@ -1,9 +1,9 @@
 const { configObject: {persistence, conectDB} } = require('../config/config.js')
 
-const MessageDao = null
-const UserDao = null
-const ProductDao = null
-const TicketDao = null
+let MessageDao
+let UserDao 
+let ProductDao 
+let TicketDao 
  
 
 switch (persistence) {
