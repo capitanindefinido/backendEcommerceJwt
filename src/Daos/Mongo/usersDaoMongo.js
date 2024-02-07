@@ -3,7 +3,6 @@ const { userDto } = require ("../../Dto/users.dto")
 // persistencia/model
 class UserDaoMongo {
   constructor() {
-    this.model = userModel;
   }
   async get() {
     // return this.model.find({})

@@ -1,5 +1,8 @@
 // persistencia/model
 class MessageDaoMongo {
+    constructor(){
+        
+    }
     get(){
         return 'get Messages'
     }
