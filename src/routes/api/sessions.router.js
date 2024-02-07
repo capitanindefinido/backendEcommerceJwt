@@ -65,7 +65,7 @@ router.post("/login", async (req, res) => {
 // http://localhost:8080/api/sessions /register
 router.post("/register", async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body;
+    const { first_name, last_name, email, password, id_cart } = req.body;
     // validar campos
     if (!first_name) {
       return res.send({ status: "error", error: "completar todos los campos" });
@@ -85,6 +85,7 @@ router.post("/register", async (req, res) => {
       last_name,
       email,
       password: createHash(password),
+      id_cart,
     };
 
     let result = await userModel.create(newUser);

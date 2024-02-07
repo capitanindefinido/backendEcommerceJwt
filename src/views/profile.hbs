@@ -2,7 +2,7 @@
     <h1 class="text-center mt-5">Perfil de {{user.first_name}} - {{user.last_name}}</h1>
     <h3>Role: {{user.role}}</h3>
     <h3>Email: {{user.email}}</h3>
-    <a href="/carts/{{cartId}}?email={{user.email}}" style="text-decoration: none;">
+    <a href="/carts/{{user.id_cart}}?email={{user.email}}" style="text-decoration: none;">
                         <span class="navbar-text text-black">
                             Ver carrito... 🛒
                         </span>

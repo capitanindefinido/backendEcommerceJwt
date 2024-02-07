@@ -38,20 +38,14 @@ router.get('/profile', [
             const userManagerMongo = new UserManagerMongo()
             let serviceUsers = new UserDaoMongo()
             let email = req.user.email
-            const user = await userModel.findOne({ email });
             const token = req.cookies.cookieToken
+            let user = jwt.verify(token, 'secret')
     
             //let userCart = jwt.verify(token, 'secret')
             const idCartUser = await serviceUsers.getIdCartByEmailUser(user.email)
             res.render('profile', {
                 showNav: true,
-                user: {
-                    email: user.email,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    role: user.role
-                },
-                cartId : idCartUser,
+                user: user
             })
         } catch (error) {
             console.log(error)
@@ -202,7 +196,7 @@ router.get("/checkout", async (req, res) => {
     let totalAmount = req.query.totalPrice
     let newCart = await cartManagerMongo.create(purchaser)
     let newIdCart = newCart._id.toString()
-    await cartService.removeAllProductsFromCart(cartId)
+    await cartManagerMongo.removeAllProductsFromCart(cart_Id)
     //let updateUser = await UserManagerMongo.updateIdCartUser({email: purchaser, newIdCart})
     if(newCart)
     {
