@@ -46,9 +46,20 @@
         .then(response => response.json())
         .then((data) => {
             if (data.status === 'success') {
-                //console.log(data)
-                //localStorage.setItem('authToken', data.token)
-                window.location.href = '/'
+                Toastify({
+                    text: 'Login exitoso. ¡Bienvenido!',
+                    duration: 3000, // Duración del mensaje en milisegundos
+                    gravity: 'top', // Posición del mensaje
+                    position: 'right', // Ubicación del mensaje
+                    backgroundColor: 'blue', // Color de fondo del mensaje
+                }).showToast();
+
+                setTimeout(() => {
+                    window.location.href = '/'; 
+                }, 3000); 
+                // Puedes redirigir a la página principal o a la que desees
+            } else if (data.status === 'error' && data.error === 'Usuario no existe') {
+                window.location.href = '/register'; // Redirige a la página de registro si el usuario no existe
             }
         }).catch((error) => {
             console.log(error.message)
@@ -70,9 +81,26 @@
         .then((data) => {
             if (data.status === 'success') {
                 // Realizar acciones adicionales después del logout si es necesario
-                window.location.href = '/login';
+                Toastify({
+                    text: 'Sesion cerrada con éxito. Vuelve pronto!',
+                    duration: 3000, // Duración del mensaje en milisegundos
+                    gravity: 'top', // Posición del mensaje
+                    position: 'right', // Ubicación del mensaje
+                    backgroundColor: 'black', // Color de fondo del mensaje
+                }).showToast();
+
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000); 
             } else {
                 console.log('Error en el logout:', data.body);
+                Toastify({
+                    text: 'No hay ninguina sesión abierta, inicie sesión o regístrese',
+                    duration: 3000, // Duración del mensaje en milisegundos
+                    gravity: 'top', // Posición del mensaje
+                    position: 'right', // Ubicación del mensaje
+                    backgroundColor: 'black', // Color de fondo del mensaje
+                }).showToast();
             }
         })
         .catch((error) => {

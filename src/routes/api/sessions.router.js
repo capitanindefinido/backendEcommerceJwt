@@ -41,10 +41,10 @@ router.post("/login", async (req, res) => {
     last_name: user.last_name,
     email: user.email,
     role: user.role,
-    id_cart: user.id_cart,
+    id_cart: newUser.id_cart,
   });
 
-  
+  const usertoken = jwt.verify(token, "secret");
 
   // dos formas de enviar el token
   res
@@ -212,31 +212,28 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
-/*router.post("/logout", async (req, res, cookieToken) => {
-  console.log(req.body)
-  req.session.destroy((error) => {
-    if (error) {
-      return res.json({ status: "Logout Error", body: error });
-    }
-    res.redirect("../../login");
-  });
-  res.send("cerrada la session");
-});*/
 
 router.post("/logout", async (req, res) => {
   try {
-    const token = req.cookies.cookieToken   
-    let user = jwt.verify(token, 'secret')
-    const cartId = user.id_cart
-    await cartService.removeAllProductsFromCart(cartId)
-    // Eliminar la cookie
-    res.clearCookie("cookieToken");
+    const token = req.cookies.cookieToken  
+    if(token){
+      let user = jwt.verify(token, 'secret')
+      const cartId = user.id_cart
+      await cartService.removeAllProductsFromCart(cartId)
+      // Eliminar la cookie
+      res.clearCookie("cookieToken");
 
-    // Envía una respuesta exitosa
-    res.status(200).send({
-      status: "success",
-      message: "Logout successful",
-    });
+      // Envía una respuesta exitosa
+      res.status(200).send({
+        status: "success",
+        message: "Logout successful",
+      });
+    }else{
+      res.status(401).send({
+        status: "error",
+        error: "No hay sesión iniciada",
+      });
+    } 
   } catch (error) {
     console.error(error);
     res.status(500).send({

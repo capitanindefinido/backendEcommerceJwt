@@ -1,12 +1,52 @@
 <div>
     <h1>Register</h1>
     <form action="/api/sessions/register" method="POST" >
-        <input type="text" name="first_name" placeholder="ingresar el nombre">
-        <input type="text" name="last_name" placeholder="ingresar el apellido">
-        <input type="text" name="email" placeholder="ingresar el email">
-        <input type="text" name="password" placeholder="ingresar el password">
+        <input type="text" name="first_name" placeholder="Ingresar el nombre">
+        <input type="text" name="last_name" placeholder="Ingresar el apellido">
+        <input type="text" name="email" placeholder="Ingresar el email">
+        <input type="text" name="password" placeholder="Ingresar el password">
         {{!-- imagen multer --}}
         <button class="btn btn-outline-dark">Enviar</button>
     </form>
-    <a href="/login">Ya tienes una cuenta?</a>
+    <a href="/login">¿Ya tienes una cuenta?</a>
 </div>
+<script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/api/sessions/register', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const responseData = await response.json();
+
+            if (response.status === 200 && responseData.status === 'success') {
+                Toastify({
+                    text: 'Registro exitoso. ¡Bienvenido!',
+                    duration: 3000, // Duración del mensaje en milisegundos
+                    gravity: 'top', // Posición del mensaje
+                    position: 'right', // Ubicación del mensaje
+                    backgroundColor: 'green', // Color de fondo del mensaje
+                }).showToast();
+
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 3000); 
+            } else {
+                // Muestra un mensaje de error si lo necesitas
+                console.error(responseData.error || 'Error en el registro');
+            }
+        } catch (error) {
+            console.error('Error al realizar el registro', error.message);
+        }
+    });
+</script>
+

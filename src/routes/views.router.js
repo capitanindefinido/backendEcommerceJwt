@@ -8,7 +8,7 @@ const UserManagerMongo = require("../Daos/Mongo/usersDaoMongo");
 const {
   login,
   resetPasword,
-  changePassword
+  changePassword,
 } = require("../controllers/views.controller.js");
 const { productModel } = require("../models/products.model.js");
 const UserDaoMongo = require("../Daos/Mongo/usersDaoMongo");
@@ -22,14 +22,13 @@ const cartManagerMongo = new CartManagerMongo();
 const ticketManagerMongo = new TicketDaoMongo();
 const userManagerMongo = new UserDaoMongo();
 
-
 router
   .get("/login", login)
   .get("/forgot-password", resetPasword)
   .get("/change-password", [], changePassword)
   .get("/register", (req, res) => {
     res.render("register", {
-      showNav: false
+      showNav: true,
     });
   });
 
@@ -45,7 +44,7 @@ router.get("/profile", [passportCall("jwt")], async (req, res) => {
     const idCartUser = await serviceUsers.getIdCartByEmailUser(user.email);
     res.render("profile", {
       showNav: true,
-      user: user
+      user: user,
     });
   } catch (error) {
     console.log(error);
@@ -53,34 +52,44 @@ router.get("/profile", [passportCall("jwt")], async (req, res) => {
 });
 
 router.get("/", [passportCall("jwt")], async (req, res) => {
-  const { limit, numPage, sort } = req.params;
-  let serviceProducts = new ProductDaoMongo();
-  const token = req.cookies.cookieToken;
-  const user = jwt.verify(token, "secret");
-  const {
-    docs,
-    hasPrevPage,
-    prevPage,
-    hasNextPage,
-    nextPage,
-    page
-  } = await serviceProducts.get({
-    limit,
-    page: numPage,
-    sort: { price: sort },
-    lean: true
-  });
+  try {
+    const { limit, numPage, sort } = req.params;
+    let serviceProducts = new ProductDaoMongo();
+    const token = req.cookies.cookieToken;
+    const user = jwt.verify(token, "secret");
+    const {
+      docs,
+      hasPrevPage,
+      prevPage,
+      hasNextPage,
+      nextPage,
+      page,
+    } = await serviceProducts.get({
+      limit,
+      page: numPage,
+      sort: { price: sort },
+      lean: true,
+    });
 
-  res.render("index", {
-    user: user,
-    showNav: true,
-    products: docs,
-    hasPrevPage,
-    prevPage,
-    hasNextPage,
-    nextPage,
-    page
-  });
+    // Convertir ObjectId a cadena en cada documento
+    const products = docs.map(product => ({
+      ...product,
+      _id: product._id.toString(),
+    }));
+
+    res.render("index", {
+      user: user,
+      showNav: true,
+      products: products,
+      hasPrevPage,
+      prevPage,
+      hasNextPage,
+      nextPage,
+      page,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // http://localhost:8080/products?limit=3&page (vista) http://localhost:8080/api/products
@@ -95,12 +104,12 @@ router.get("/products", async (req, res) => {
     prevPage,
     hasNextPage,
     nextPage,
-    page
+    page,
   } = await serviceProducts.getProducts({
     limit,
     page: numPage,
     sort: { price: sort },
-    lean: true
+    lean: true,
   });
 
   res.status(200).render("products", {
@@ -109,7 +118,7 @@ router.get("/products", async (req, res) => {
     prevPage,
     hasNextPage,
     nextPage,
-    page
+    page,
   });
 });
 
@@ -117,23 +126,33 @@ router.get("/products", async (req, res) => {
 router.get("/product-detail/:pid", async (req, res) => {
   try {
     const product = await productModel.findById(req.params.pid);
+
+    if (!product) {
+      // Si el producto no se encuentra, puedes manejar esto de alguna manera
+      // Por ejemplo, redirigir a una página de error o renderizar una página especial.
+      return res.status(404).render("productNotFound", { showNav: true });
+    }
+
     const token = req.cookies.cookieToken;
     let user = jwt.verify(token, "secret");
     const sendProduct = {
-      title: product.title,
-      thumbnail: product.thumbnail,
-      description: product.description,
-      price: product.price,
-      stock: product.stock,
-      category: product.category
+      _id: product._doc._id.toString(),
+      title: product._doc.title,
+      thumbnail: product._doc.thumbnail,
+      description: product._doc.description,
+      price: product._doc.price,
+      stock: product._doc.stock,
+      category: product._doc.category,
     };
     res.status(200).render("productDetail", {
       user: user,
       showNav: true,
-      product: sendProduct
+      product: sendProduct,
     });
   } catch (error) {
     console.log(error);
+    // Manejar otros errores aquí
+    res.status(500).render("error", { showNav: true });
   }
 });
 
@@ -142,7 +161,7 @@ router.get("/product-edit-form/:pid", async (req, res) => {
   const product = await productModel.findById(req.params.pid);
   res.status(200).render("productEditForm", {
     showNav: true,
-    product: product
+    product: product,
   });
 });
 
@@ -151,25 +170,10 @@ router.get(
   [passportCall("jwt"), authorization(["ADMIN"])],
   async (req, res) => {
     res.status(200).render("realTimeProduct", {
-      showNav: true
+      showNav: true,
     });
   }
 );
-
-/*router.get('/carts', [ 
-    passportCall('jwt'), 
-    authorization(['USER']), 
-    ], async (req, res) => {        
-        // en esta parte tengo que tener el token con el users._id
-        const cart = await cartManagerMongo.getBy({_id: '65975c914af1fd5fe39e9e18'})
-        // console.log(cart)
-        res.status(200).render('carts', {
-            showNav: true,
-            products: cart.products,
-            cid: cart._id            
-        })
-    }
-)*/
 
 router.get(
   "/carts/:cid",
@@ -178,19 +182,29 @@ router.get(
     let id = req.params.cid;
     let emailActive = req.query.email;
     let allCarts = await cartManagerMongo.getCartWithProducts(id);
-    allCarts.products.forEach(producto => {
-      producto.total = producto.quantity * producto.product.price;
-    });
-    const sumTotal = allCarts.products.reduce((total, producto) => {
-      return total + (producto.total || 0); // Asegurarse de manejar casos donde total no esté definido
-    }, 0);
-    res.render("carts", {
-      title: "Vista Carro",
-      carts: allCarts,
-      user: emailActive,
-      calculateSumTotal: products =>
-        products.reduce((total, producto) => total + (producto.total || 0), 0)
-    });
+    if (allCarts == "Carrito no encontrado") {
+      res.render("productNotFound", {
+        showNav: true,
+      });
+    } else {
+      allCarts.products.forEach(producto => {
+        producto.total = producto.quantity * producto.product.price;
+      });
+      const sumTotal = allCarts.products.reduce((total, producto) => {
+        return total + (producto.total || 0); // Asegurarse de manejar casos donde total no esté definido
+      }, 0);
+      res.render("carts", {
+        showNav: true,
+        title: "Vista Carro",
+        carts: allCarts,
+        user: emailActive,
+        calculateSumTotal: products =>
+          products.reduce(
+            (total, producto) => total + (producto.total || 0),
+            0
+          ),
+      });
+    }
   }
 );
 
@@ -199,12 +213,23 @@ router.get("/checkout", async (req, res) => {
   let purchaser = req.query.purchaser;
   let totalAmount = req.query.totalPrice;
   let newCart = await cartManagerMongo.create(purchaser);
-  let newIdCart = newCart._id.toString();
+  const cart = await cartManagerMongo.getBy({_id: cart_Id})
+  for (const cartProduct of cart.products) {
+    const productId = cartProduct.product._id;
+    const quantityPurchased = cartProduct.quantity;
+    await productModel.updateOne(
+      { _id: productId },
+      { $inc: { stock: -quantityPurchased } }
+    );
+  }
   await cartManagerMongo.removeAllProductsFromCart(cart_Id);
-  //let updateUser = await UserManagerMongo.updateIdCartUser({email: purchaser, newIdCart})
+  const user = await userModel.findOne({ email: purchaser });
+  const idCartUser = newCart._doc._id.toString();
   const newUser = await userManagerMongo.update(
-    {_id: user._doc._id.toString()},{
-      id_cart: null
+    { _id: user._doc._id.toString() },
+    {
+      last_connection: new Date(),
+      id_cart: idCartUser,
     }
   );
   if (newCart) {
@@ -213,7 +238,7 @@ router.get("/checkout", async (req, res) => {
       purchase_datetime: Date(),
       amount: totalAmount,
       purchaser: purchaser,
-      id_cart_ticket: cart_Id
+      id_cart_ticket: cart_Id,
     };
     let result = await ticketManagerMongo.addTicket(newTicket);
     const newTicketId = result._id.toString();
@@ -227,13 +252,11 @@ router.get("/tickets/:tid", async (req, res) => {
   let allTickets = await ticketManagerMongo.getTicketById(id);
   res.render("viewTicket", {
     title: "Vista Ticket",
-    tickets: allTickets
+    tickets: allTickets,
+    showNav: true,
   });
 });
-// protejer con jwt passport
-// passport.authenticate('jwt', {session: false}) envolver en una función
-// router.get('/users', passport.authenticate('jwt', {session: false}), async (req, res) => {
-// user admin
+
 router.get(
   "/users",
   [passportCall("jwt"), authorization(["ADMIN"])],
@@ -246,15 +269,9 @@ router.get(
         hasNextPage,
         prevPage,
         nextPage,
-        page
+        page,
         // totalPages
       } = await userModel.paginate({}, { limit, page: numPage, lean: true });
-      // console.log(totalPages)
-      // console.log(docs)
-      // if () {
-
-      // }
-      // console.log(users)
       res.status(200).render("users", {
         showNav: true,
         users: docs,
@@ -262,7 +279,7 @@ router.get(
         hasNextPage,
         prevPage,
         nextPage,
-        page
+        page,
       });
     } catch (error) {
       console.log(error);
@@ -282,10 +299,5 @@ router.get(
 router.get("/contacto", (req, res) => {
   res.render("contactos", { nombre: "Fede", showNav: true });
 });
-
-// vista del carrito
-// vista del product / todos  / el detalle
-// profile
-// contactenos.
 
 module.exports = router;
