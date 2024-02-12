@@ -8,7 +8,7 @@
 
 <script>
     const getProductId = async () => {
-        const id = window.location.pathname.split('/')[3];
+        const id = window.location.pathname.split('detail/')[1];
         const data = await fetch(`http://localhost:4000/api/products/${id.toString()}`);
         const dataJson = await data.json();
         return dataJson.payload;
@@ -44,7 +44,7 @@
 
         addToCartBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            const pid = window.location.pathname.split('/')[3];
+            const pid = window.location.pathname.split('detail/')[1];
             const cid = document.querySelector('#idCart').innerText; // Cambiado de .value a .innerText
             const quantity = parseInt(document.querySelector('#quantitySelect').value);
             const data = { quantity };
